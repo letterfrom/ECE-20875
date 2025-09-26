@@ -6,42 +6,42 @@ def conditional_map(predicate, if_func, else_func, L):
     '''
     Returns a new list R where each element in R is if_func(element) if predicate(element) 
     returns True, and else_func(element) otherwise.
-
-    :param predicate: function that takes an element and returns True/False
-    :param if_func: function to apply to elements where predicate returns True
-    :param else_func: function to apply to elements where predicate returns False
-    :param L: list of elements
-    :return R: list of results
     '''
-    # Fill in
-    pass
+    R = []
+    for x in L:
+        if predicate(x):
+            result = if_func(x)
+        else:
+            result = else_func(x)
+        R.append(result)
+    return R
+
 
 def compose_map(func_1, func_2, L):
     """
-    Returns a new list R where each element in R is fun2(fun1(i)) for the
+    Returns a new list R where each element in R is func_2(func_1(i)) for the
     corresponding element i in L
-    :param fun1: function
-    :param fun2: function
-    :param L: list
-    :return R: list
     """
-    # Fill in
-    pass
+    R = []
+    for i in L:
+        temp = func_1(i)
+        result = func_2(temp)
+        R.append(result)
+    return R
+
 
 def compose(func_1, func_2):
-    # Fill in
     """
     Returns a new function ret_fun. ret_fun should take a single input i, and return
-    fun1(fun2(i))
-    :param fun1: function
-    :param fun2: function
-    :return ret_fun: function
+    func_1(func_2(i))
     """
     def ret_fun(i):
-        # Fill in
-        pass
+        temp = func_2(i)
+        result = func_1(temp)
+        return result
 
     return ret_fun
+
 
 def repeater(fun, num_repeats):
     """
@@ -51,15 +51,15 @@ def repeater(fun, num_repeats):
     in the list `num_repeats`, and then calls the second function in `funlist` repeated 
     a number of times equal to the second number in the list `num_repeats`, continuing this
     pattern until the end of `funlist` is reached.
-    :param fun: list of functions
-    :param num_repeats: list of int
-    :return ret_fun: function
     """
     def ret_fun(x):
-        # Fill in
-        pass
+        for f, n in zip(fun, num_repeats):
+            for _ in range(n):
+                x = f(x)
+        return x
 
     return ret_fun
+
 
 #############################################
 # Problem 2: Stencil and Box filter functions
@@ -71,41 +71,37 @@ def stencil(data, f, width):
     2) return the resulting list output.
     3) note that if len(data) is k, len(output) would be k - width + 1.
     4) f will accept input a list of size 'width' and return a single number.
-
-    :param data: list
-    :param f: function
-    :param width: int
-    :return output: list
     """
     # Fill in
-    pass
+    output = []
+    k = len(data)
+    limit = k - width + 1
+    for start in range(limit):
+        window = []
+        for j in range(width):
+            window.append(data[start + j])
+        value = f(window)
+        output.append(value)
+    return output
 
 
 def create_box(box):
     """
-    1) This function takes in a list, box.
-    The box_filter function defined below accepts a list L of length len(box) and returns a simple
-    convolution of it with the list, box.
-
-    2) The meaning of this box filter is as follows:
-    for each element of input list L, multiply L[i] by box[len(box) - 1  - i],
-    sum the results of all of these multiplications and return the sum.
-
-    3) For a box of length 3, box_filter(L) should return:
-      (box[2] * L[0] + box[1] * L[1] + box[0] * L[2]),
-      similarly, for a box of length 4, box_filter should return:
-      (box[3] * L[0] + box[2] * L[1] + box[1] * L[2] + box[0] * L[3])
-
-    The function create_box returns the box_filter function, as well as the length
-    of the input list box
-
-    :param box: list
-    :return box_filter: function, len(box): int
+    Returns a stencil function (box_filter) and the box length.
+    The box_filter performs a 1-D convolution with the *flipped* box.
     """
     # Fill in
+    n = len(box)
+
     def box_filter(L):
         # Fill in
-        pass
+        if len(L) != n:
+            print(f"Calling box filter with the wrong length list. Expected length of list should be {n}.")
+            return 0
+        total = 0
+        for i in range(n):
+            total += box[n - 1 - i] * L[i]
+        return total
 
     return box_filter, len(box)
 
