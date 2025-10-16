@@ -8,7 +8,18 @@ def problem1(searchstring):
     :param searchstring: string
     :return: string
     """
-    pass
+    pattern = re.compile(
+        r'^[A-Za-z]{1,10}\.'          # name: 1–10 letters, then a period
+        r'(?:[1-6]\d{2}|7\d{2})'      # ID number: 100–799
+        r'[A-Za-z]*'                  # optional letters immediately after ID
+        r'@'                          # @ symbol
+        r'(?:vought\.com|godolkin\.edu|fbsa\.gov)$'  # valid domains only
+    )
+
+    if pattern.fullmatch(searchstring):
+        return "valid"
+    else:
+        return "invalid"
 
 
 def problem2(searchstring):
@@ -18,7 +29,18 @@ def problem2(searchstring):
     :param searchstring: string
     :return: tuple
     """
-    pass
+    pattern = re.compile(
+        r'\b([A-Z][a-z]+(?: [A-Z][a-z]+)?) wrote (?:([A-Z0-9][A-Za-z0-9]*(?: [A-Z0-9][A-Za-z0-9]*){0,2})|books)\b'
+    )
+
+    m = pattern.search(searchstring)
+    if not m:
+        return ("noauthor", "noname")
+
+    author = m.group(1).strip()
+    book = m.group(2).strip() if m.group(2) else "books"
+
+    return (author, book)
 
 
 def problem3(searchstring):
@@ -28,7 +50,22 @@ def problem3(searchstring):
     :param searchstring: string
     :return: string
     """
-    pass
+    pattern = re.compile(r'\b([A-Z][a-z]*)\s+(Boy|Girl|boy|girl)\b')
+
+    repl_map = {
+        "Boy": "Man",
+        "Girl": "Woman",
+        "boy": "man",
+        "girl": "woman",
+    }
+
+    def repl(m):
+        name = m.group(1)
+        label = m.group(2)
+        return f"{name} {repl_map[label]}"
+
+    out = pattern.sub(repl, searchstring)
+    return out if out != searchstring else "nomatch"
 
 
 if __name__ == '__main__':
