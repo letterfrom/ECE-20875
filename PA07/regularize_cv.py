@@ -23,13 +23,20 @@ def normalize_train(X_train):
     Fill in your code here
     '''
     
-    
+    X = np.zeros(X_train.shape)
+    # trn_mean = np.zeros(X_train.shape[1])
+    # trn_std = np.zeros(X_train.shape[1])
 
+    # for i in range(X_train.shape[1]):
+    trn_mean = np.mean(X_train , axis = 0)
+    trn_std = np.std(X_train, axis = 0)
+    X = (X_train - trn_mean) / trn_std
+    
     return X, trn_mean, trn_std
+
 
 # Part 2
 # Function that normalizes testing set according to mean and std of training set
-
 def normalize_test(X_test, trn_mean, trn_std):
     
     # Input
@@ -46,8 +53,9 @@ def normalize_test(X_test, trn_mean, trn_std):
     Fill in your code here
     '''
     
-    
-    
+    X = np.zeros(X_test.shape)
+
+    X = (X_test - trn_mean) / trn_std
 
     return X
 
@@ -69,11 +77,9 @@ def get_lambda_range():
     Fill in your code here
     '''
 
-
-
+    lmbda = np.logspace(-1, 3, 51, base = 10)
 
     return lmbda
-
 
 
 # Part 4
@@ -93,7 +99,11 @@ def train_model(X_train, y_train, l):
     Fill in your code here
     '''
 
+    model = Ridge(alpha = l, fit_intercept = True)
+    model.fit(X_train, y_train)
+
     return model
+
 
 # Part 5
 # Function that calculates the mean squared error of the model on the input dataset
@@ -113,6 +123,9 @@ def error(X, y, model):
     Fill in your code here
     '''
 
+    y_hat = model.predict(X)
+    mse = np.mean((y - y_hat)**2)
+    
     return mse
 
 
@@ -133,15 +146,13 @@ def main():
     X = np.array(df.drop(["Prediction"], axis=1))
     # step 7: Store `Prediction` column in y array
     y = np.array(df["Prediction"])
-    X_train, X_test, y_train, y_test = train_test_split(
-        X, y, test_size=0.2, shuffle=False
-    )
+    X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, shuffle=False)
 
 
-    # Part 1:
+    # Problem 1:
     # Complete the function 'normalize_train' above
     
-    # Part 2:
+    # Problem 2:
     # Complete the function 'normalize_test' above
 
 
@@ -150,13 +161,13 @@ def main():
     X_test = normalize_test(X_test, trn_mean, trn_std)
 
 
-    # Part 3: 
+    # Problem 3: 
     # Complete the function 'get_lambda_range'.
     
-    # Part 4:
+    # Problem 4:
     # Complete the function 'train_model' above.
     
-    # Part 5:
+    # Problem 5:
     # Complete the function 'error' above.
 
     # Define the range of lambda to test
@@ -183,7 +194,10 @@ def main():
     ''' 
     fill in your code below 
     '''
-    plt  # <<< fill in here 
+    plt.title("MSE vs Lambda")
+    plt.xlabel("Regularization Parameter Lambda")
+    plt.ylabel("Mean Squared Error")
+    plt.plot(lmbda, MSE)
     plt.show()
 
     # Find best value of lmbda in terms of MSE
@@ -191,7 +205,7 @@ def main():
     ''' 
     fill in your code below 
     '''
-    ind = None  # <<< fill in here
+    ind = np.argmin(MSE)
     [lmda_best, MSE_best, model_best] = [lmbda[ind], MSE[ind], MODEL[ind]]
 
     print(
@@ -208,6 +222,9 @@ def main():
     fill in your code below 
     '''
     
+    print("Coefficients: ", model_best.coef_)
+    print("Intercept: ", model_best.intercept_)
+
     # Part 8
     # Load GOOG.csv 
     # This process will be similar to steps 1-7 where AAPL.csv is loaded
@@ -215,18 +232,32 @@ def main():
     ''' 
     fill in your code below 
     '''
-    X_goog = None  # <<< fill in here (similar to step 6)
-    y = None  # <<< fill in here (similar to step 7)
+    #use model trained from apple data?
+    dt = pd.read_csv("GOOG.csv")
+    remove_features = ["Date"]
+    dt["Prediction"] = pd.Series(np.append(dt["Close"][1:].to_numpy(), [0]))
+    dt.drop(dt.tail(1).index, inplace=True)
+    dt.drop(remove_features, axis=1, inplace=True)
+    X_goog = np.array(dt.drop(["Prediction"], axis=1))
+    y = np.array(dt["Prediction"])
 
     # normalize X similar to X_test
 
-    y_hat = None  # <<< fill in here (use your best model from Part 7)
+    X_goog = normalize_test(X_goog, trn_mean, trn_std)
+
+    y_hat = model_best.predict(X_goog)
+    mse = np.mean((y - y_hat)**2)
+    print("MSE for GOOG: ", mse)
 
     # plot y and y_hat
     plt.figure()
     '''
     fill in your code here
     '''
+    plt.plot(y, label='y')
+    plt.plot(y_hat, label='y_hat')
+    plt.legend()
+
     plt.show()
     return model_best
 
