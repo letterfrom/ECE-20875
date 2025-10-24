@@ -29,9 +29,11 @@ def main(datapath, degrees):
         
     # iterate through each n in the list degrees, calling the feature_matrix and least_squares functions to solve
     # for the model parameters in each case. Append the result to paramFits each time.
-    '''
-    fill in your code here
-    '''
+    
+    for d in degrees:
+        X = feature_matrix(x, d)
+        B = least_squares(X, y)
+        paramFits.append(B)
 
     return paramFits
 
@@ -55,9 +57,14 @@ def feature_matrix(x, d):
     # There are several ways to write this function. The most efficient would be a nested list comprehension
     # which for each sample in x calculates x^d, x^(d-1), ..., x^0.
     # Please be aware of which matrix colum corresponds to which degree polynomial when completing the writeup.
-    '''
-    fill in your code here
-    '''
+    
+    X = []
+
+    for i in range(len(x)):
+        row = []
+        for j in range(d+1):
+            row.append(x[i]**(d-j))
+        X.append(row)
 
     return X
 
@@ -77,9 +84,8 @@ def least_squares(X, y):
     y = np.array(y)
 
     # Use the matrix algebra functions in numpy to solve the least squares equations. This can be done in just one line.
-    '''
-    fill in your code here
-    '''
+    
+    B = np.linalg.inv(X.T @ X) @ X.T @ y
 
     return B
 
@@ -106,7 +112,7 @@ if __name__ == "__main__":
     
     
     # Write out the resulting estimated functions for each d.
-    degrees = [2, 4] # TODO: Update the degrees,d to include 1, 3, 5 and 6. i.e. [1,2,3,4,5,6] and
+    degrees = [1, 2, 3, 4, 5, 6]
     paramFits = main(datapath, degrees)
     for idx in range(len(degrees)):
         print("y_hat(x_"+str(degrees[idx])+")")
@@ -125,7 +131,8 @@ if __name__ == "__main__":
         '''
         Fill in your code here
         '''
-        
+        y_hat = np.polyval(params, x)
+        plt.plot(x, y_hat, label='degree ' + str(len(params)-1))
         
         
 
@@ -139,8 +146,10 @@ if __name__ == "__main__":
     # TODO: when x = 2; what is the predicted output
     # Use the degree that best matches the data as determined in Problem 3 above.
     
-    '''
-    fill in your code here
-    '''
+    d = 3
+    x = 2
+    y_hat = np.polyval(paramFits[d], x)
+
+    print("y_hat(2): ", y_hat)
 
 
